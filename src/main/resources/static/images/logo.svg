@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000" width="1000" height="1000">
+  <title>Hospital Management System</title>
+  <desc>Blue and teal hospital management system logo with hospital, medical cross, hand and stethoscope.</desc>
+  <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Protective arc -->
+    <path d="M180 500 C135 350 205 205 360 145 C505 89 660 120 760 205" stroke="#19A79F" stroke-width="38"/>
+
+    <!-- Hospital -->
+    <g fill="#0867B8" stroke="none">
+      <path d="M300 410 H405 V650 H300 Z"/>
+      <path d="M405 270 H600 V650 H405 Z"/>
+      <path d="M600 410 H700 V650 H600 Z"/>
+    </g>
+
+    <!-- Medical cross -->
+    <path d="M475 315 V390 M437 352 H513" stroke="#FFFFFF" stroke-width="28"/>
+
+    <!-- Windows -->
+    <g fill="#FFFFFF" stroke="none">
+      <rect x="335" y="455" width="28" height="32" rx="4"/>
+      <rect x="335" y="515" width="28" height="32" rx="4"/>
+      <rect x="440" y="440" width="30" height="30" rx="4"/>
+      <rect x="495" y="440" width="30" height="30" rx="4"/>
+      <rect x="550" y="440" width="30" height="30" rx="4"/>
+      <rect x="635" y="455" width="28" height="32" rx="4"/>
+      <rect x="635" y="515" width="28" height="32" rx="4"/>
+    </g>
+
+    <!-- Entrance -->
+    <path d="M462 650 V565 H545 V650" stroke="#FFFFFF" stroke-width="12"/>
+    <path d="M503 575 V650" stroke="#FFFFFF" stroke-width="8"/>
+
+    <!-- Supporting hand -->
+    <path d="M170 625 C255 575 335 570 405 600 C475 630 555 665 650 625 C700 604 748 610 765 635 C735 700 650 755 550 770 C425 790 275 755 185 690 C160 672 150 645 170 625 Z" fill="#19A79F" stroke="none"/>
+    <path d="M390 700 C450 720 520 715 570 685" stroke="#FFFFFF" stroke-width="12"/>
+
+    <!-- Stethoscope -->
+    <path d="M760 215 C805 175 875 185 900 235 C925 285 905 360 855 380 C810 398 760 370 745 325" stroke="#0867B8" stroke-width="28"/>
+    <path d="M855 380 V620 C855 685 820 730 775 755" stroke="#0867B8" stroke-width="28"/>
+    <path d="M775 755 C815 725 850 675 875 635" stroke="#0867B8" stroke-width="28"/>
+    <circle cx="900" cy="610" r="42" stroke="#0867B8" stroke-width="22"/>
+    <circle cx="900" cy="610" r="13" fill="#0867B8" stroke="none"/>
+    <circle cx="770" cy="210" r="23" fill="#0867B8" stroke="none"/>
+    <circle cx="900" cy="210" r="23" fill="#0867B8" stroke="none"/>
+
+    <!-- Wordmark -->
+    <text x="500" y="855" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="112" font-weight="700" fill="#0867B8" stroke="none">Hospital</text>
+    <text x="500" y="925" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="48" font-weight="600" fill="#19A79F" stroke="none">Management System</text>
+  </g>
+</svg>

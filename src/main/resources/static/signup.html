@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Patient Registration — Hospital Management System</title>
+  <link rel="icon" type="image/svg+xml" href="images/logo.svg">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="auth-page-body">
+
+  <div class="auth-card">
+    <div style="position: absolute; top: 16px; right: 16px;">
+      <button type="button" id="btn-theme-toggle" class="btn-theme-toggle" aria-label="Toggle dark/light theme" title="Toggle Theme" onclick="UI.toggleTheme()">
+        <svg class="theme-icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+        <svg class="theme-icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+      </button>
+    </div>
+    <div class="auth-header">
+      <div class="auth-logo">
+        <img src="images/logo.svg" alt="Hospital Management Logo" class="auth-logo-img">
+      </div>
+      <h1 class="auth-title">Patient Registration</h1>
+      <p class="auth-subtitle">Create your patient account to book and manage appointments</p>
+    </div>
+
+    <!-- Alert / Error Banner -->
+    <div id="signup-alert-banner" class="banner banner-danger" style="display: none;">
+      <span id="signup-alert-text"></span>
+    </div>
+
+    <form id="signup-form" novalidate>
+      <div class="form-group">
+        <label for="username" class="form-label">Username <span class="required-mark">*</span></label>
+        <input 
+          type="text" 
+          id="username" 
+          name="username" 
+          class="form-control" 
+          placeholder="Choose a username" 
+          required 
+          autocomplete="username" 
+          autofocus
+        >
+        <div id="username-error" class="form-error">Username is required</div>
+      </div>
+
+      <div class="form-group">
+        <label for="password" class="form-label">Password <span class="required-mark">*</span></label>
+        <input 
+          type="password" 
+          id="password" 
+          name="password" 
+          class="form-control" 
+          placeholder="At least 4 characters" 
+          required 
+          autocomplete="new-password"
+        >
+        <div id="password-error" class="form-error">Password must be at least 4 characters</div>
+      </div>
+
+      <button type="submit" id="btn-signup-submit" class="btn btn-primary" style="width: 100%; margin-top: 8px; padding: 10px;">
+        Create Patient Account
+      </button>
+    </form>
+
+    <div class="auth-footer">
+      <span>Already have an account?</span>
+      <a href="index.html" style="font-weight: 500; margin-left: 4px;">Sign in here</a>
+    </div>
+
+    <div class="auth-staff-note">
+      <svg style="width: 14px; height: 14px; flex-shrink: 0;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+      <span>Are you a doctor or hospital administrator? Self-registration isn't available for staff accounts — your hospital administrator creates and issues your sign-in credentials directly.</span>
+    </div>
+  </div>
+
+  <script src="js/api.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/common.js"></script>
+  <script>
+    Auth.redirectIfAuthenticated();
+
+    const form = document.getElementById('signup-form');
+    const usernameInput = document.getElementById('username');
+    const passwordInput = document.getElementById('password');
+    const submitBtn = document.getElementById('btn-signup-submit');
+    const alertBanner = document.getElementById('signup-alert-banner');
+    const alertText = document.getElementById('signup-alert-text');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      alertBanner.style.display = 'none';
+
+      let hasError = false;
+
+      if (!usernameInput.value.trim()) {
+        document.getElementById('username-error').classList.add('is-visible');
+        usernameInput.classList.add('is-invalid');
+        hasError = true;
+      } else {
+        document.getElementById('username-error').classList.remove('is-visible');
+        usernameInput.classList.remove('is-invalid');
+      }
+
+      if (!passwordInput.value || passwordInput.value.length < 4) {
+        document.getElementById('password-error').classList.add('is-visible');
+        passwordInput.classList.add('is-invalid');
+        hasError = true;
+      } else {
+        document.getElementById('password-error').classList.remove('is-visible');
+        passwordInput.classList.remove('is-invalid');
+      }
+
+      if (hasError) return;
+
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Registering...';
+
+      try {
+        // Public signup always creates a PATIENT account (§ auth model change).
+        // ADMIN accounts are seeded directly in the database; DOCTOR accounts are
+        // provisioned by an already-logged-in admin from the Doctors page.
+        const responseText = await Auth.signup(usernameInput.value, passwordInput.value, 'PATIENT');
+
+        if (responseText && responseText.toLowerCase().includes('already exists')) {
+          alertBanner.className = 'banner banner-danger';
+          alertText.textContent = responseText;
+          alertBanner.style.display = 'flex';
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'Create Patient Account';
+          usernameInput.focus();
+        } else {
+          // Success
+          alertBanner.className = 'banner banner-info';
+          alertText.textContent = responseText || 'User registered successfully!';
+          alertBanner.style.display = 'flex';
+
+          UI.showToast('Account created successfully. Redirecting to sign in...', 'success');
+          setTimeout(() => {
+            window.location.href = 'index.html?registered=true';
+          }, 1200);
+        }
+      } catch (err) {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Create Patient Account';
+        alertBanner.className = 'banner banner-danger';
+        alertText.textContent = err.message || 'Registration failed. Please try again.';
+        alertBanner.style.display = 'flex';
+      }
+    });
+  </script>
+</body>
+</html>

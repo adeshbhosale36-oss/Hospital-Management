@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Medical Staff Directory — Hospital Management System</title>
+  <link rel="icon" type="image/svg+xml" href="images/logo.svg">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+  <div class="app-layout">
+    <div id="app-shell"></div>
+
+    <!-- Main Content -->
+    <div class="app-main">
+      <!-- Main Viewport -->
+      <main class="app-content">
+        <div class="content-container">
+
+          <div class="page-header">
+            <div class="page-header-info">
+              <h1>Medical Practitioners</h1>
+              <p>Manage physician profiles, medical specialties, department linkages, and schedules.</p>
+            </div>
+            <div class="page-actions">
+              <button type="button" id="btn-add-doctor" class="btn btn-primary">
+                + Register Doctor
+              </button>
+            </div>
+          </div>
+
+          <!-- Table Toolbar -->
+          <div class="table-toolbar">
+            <div class="toolbar-search">
+              <svg class="search-icon" style="width: 14px; height: 14px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+              <input type="text" id="search-doctors" placeholder="Search by doctor name, specialty, department, ID...">
+            </div>
+            <div class="toolbar-actions">
+              <span id="doctors-count-info" style="font-size: 12px; color: var(--text-secondary);">Loading...</span>
+            </div>
+          </div>
+
+          <!-- Real <table> Data View -->
+          <div class="table-container">
+            <table class="data-table" id="doctors-table">
+              <thead>
+                <tr>
+                  <th class="sortable" data-sort="id" style="width: 80px;">ID <span class="sort-indicator">▼</span></th>
+                  <th class="sortable" data-sort="name">Practitioner Name & Email <span class="sort-indicator">⇅</span></th>
+                  <th class="sortable" data-sort="specialization">Medical Specialization <span class="sort-indicator">⇅</span></th>
+                  <th>Assigned Departments</th>
+                  <th class="sortable" data-sort="appointmentCount" style="width: 130px;">Appointments <span class="sort-indicator">⇅</span></th>
+                  <th style="width: 140px; text-align: right;">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="doctors-tbody">
+                <!-- Injected by doctors.js -->
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Table Pagination Footer -->
+          <div class="table-footer">
+            <span>Client-side pagination & sorting</span>
+            <div class="pagination-controls" id="doctors-pagination"></div>
+          </div>
+
+          <!-- Destructive Bulk Operations Panel (§6.1) -->
+          <div class="danger-zone-panel">
+            <div class="danger-zone-header">
+              <svg style="width: 16px; height: 16px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+              <span>Destructive Operations Zone</span>
+            </div>
+            <div class="danger-zone-body">
+              <div>
+                <div style="font-weight: 600; color: var(--text-primary); font-size: 13px;">Delete All Doctor Records</div>
+                <div style="font-size: 12px; color: var(--text-secondary); margin-top: 2px;">
+                  Performs a permanent bulk deletion of every doctor profile and cascades to delete their associated appointments.
+                </div>
+              </div>
+              <button type="button" id="btn-bulk-delete-doctors" class="btn btn-danger-outline btn-sm">
+                Delete All Doctors
+              </button>
+            </div>
+          </div>
+
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- Add / Edit Doctor Modal -->
+  <div id="doctor-modal" class="modal-backdrop" aria-hidden="true" role="dialog" aria-labelledby="doctor-modal-title">
+    <div class="modal-window">
+      <div class="modal-header">
+        <h3 class="modal-title" id="doctor-modal-title">Register Medical Staff</h3>
+        <button type="button" class="modal-close-btn" onclick="UI.closeModal('doctor-modal')">&times;</button>
+      </div>
+
+      <form id="doctor-form" novalidate>
+        <input type="hidden" id="doctor-id">
+
+        <div class="modal-body">
+          <div class="form-row">
+            <div class="form-group">
+              <label for="doctor-name" class="form-label">Doctor Full Name <span class="required-mark">*</span></label>
+              <input type="text" id="doctor-name" class="form-control" placeholder="e.g. Robert Smith" required>
+              <div id="doctor-name-error" class="form-error">Doctor name is required</div>
+            </div>
+
+            <div class="form-group">
+              <label for="doctor-specialization" class="form-label">Specialization <span class="required-mark">*</span></label>
+              <input type="text" id="doctor-specialization" class="form-control" placeholder="e.g. Cardiology, Neurology" required>
+              <div id="doctor-specialization-error" class="form-error">Specialization is required</div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="doctor-email" class="form-label">Email Address <span class="required-mark">*</span></label>
+            <input type="email" id="doctor-email" class="form-control" placeholder="doctor@hospital.org" required>
+            <div id="doctor-email-error" class="form-error">Valid email address required</div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Assigned Departments (Multi-Select)</label>
+            <div class="form-hint" style="margin-bottom: 6px;">
+              Associating departments here is the only functional method supported by the API (§6.2).
+            </div>
+            <div id="doctor-departments-checklist" class="checklist-container">
+              <!-- Dynamically populated -->
+            </div>
+          </div>
+
+          <div class="form-group" id="doctor-password-group">
+            <label for="doctor-password" class="form-label">Login Password <span class="required-mark" id="doctor-password-req">*</span></label>
+            <input type="password" id="doctor-password" class="form-control form-control-mono" placeholder="At least 4 characters" autocomplete="new-password">
+            <div id="doctor-password-error" class="form-error">Password must be at least 4 characters</div>
+            <div class="form-hint" id="doctor-password-hint">Doctor uses this password and their email to sign in.</div>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="UI.closeModal('doctor-modal')">Cancel</button>
+          <button type="submit" id="btn-doctor-submit" class="btn btn-primary">Save Record</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="js/api.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/common.js"></script>
+  <script src="js/list-controller.js"></script>
+  <script src="js/doctors.js"></script>
+</body>
+</html>

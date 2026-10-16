@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Patients Directory — Hospital Management System</title>
+  <link rel="icon" type="image/svg+xml" href="images/logo.svg">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+  <div class="app-layout">
+    <div id="app-shell"></div>
+
+    <!-- Main Content -->
+    <div class="app-main">
+      <!-- Main Viewport -->
+      <main class="app-content">
+        <div class="content-container">
+
+          <div class="page-header">
+            <div class="page-header-info">
+              <h1>Patient Directory</h1>
+              <p>Search, enroll, review medical demographics, and manage patient profiles.</p>
+            </div>
+            <div class="page-actions">
+              <button type="button" id="btn-add-patient" class="btn btn-primary">
+                + Register New Patient
+              </button>
+            </div>
+          </div>
+
+          <!-- Table Toolbar with Search -->
+          <div class="table-toolbar">
+            <div class="toolbar-search">
+              <svg class="search-icon" style="width: 14px; height: 14px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+              <input type="text" id="search-patients" placeholder="Search patients by name, email, phone, ID...">
+            </div>
+            <div class="toolbar-actions">
+              <span id="patients-count-info" style="font-size: 12px; color: var(--text-secondary);">Loading...</span>
+            </div>
+          </div>
+
+          <!-- Real <table> Data View (§8) -->
+          <div class="table-container">
+            <table class="data-table" id="patients-table">
+              <thead>
+                <tr>
+                  <th class="sortable" data-sort="id" style="width: 80px;">ID <span class="sort-indicator">▼</span></th>
+                  <th class="sortable" data-sort="patientName">Patient Name & Contact <span class="sort-indicator">⇅</span></th>
+                  <th class="sortable" data-sort="gender" style="width: 90px;">Gender <span class="sort-indicator">⇅</span></th>
+                  <th class="sortable" data-sort="age" style="width: 80px;">Age <span class="sort-indicator">⇅</span></th>
+                  <th class="sortable" data-sort="mobileNumber" style="width: 130px;">Mobile Phone <span class="sort-indicator">⇅</span></th>
+                  <th>Residential Address</th>
+                  <th>Insurance Policy</th>
+                  <th style="width: 140px; text-align: right;">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="patients-tbody">
+                <!-- Injected by patients.js -->
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Pagination Controls -->
+          <div class="table-footer">
+            <span>Client-side pagination & sorting</span>
+            <div class="pagination-controls" id="patients-pagination"></div>
+          </div>
+
+          <!-- Destructive Bulk Operations Panel (§6.1) -->
+          <div class="danger-zone-panel">
+            <div class="danger-zone-header">
+              <svg style="width: 16px; height: 16px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+              <span>Destructive Operations Zone</span>
+            </div>
+            <div class="danger-zone-body">
+              <div>
+                <div style="font-weight: 600; color: var(--text-primary); font-size: 13px;">Delete All Patient Records</div>
+                <div style="font-size: 12px; color: var(--text-secondary); margin-top: 2px;">
+                  Performs a permanent bulk deletion of every patient record and cascades to linked appointments.
+                </div>
+              </div>
+              <button type="button" id="btn-bulk-delete-patients" class="btn btn-danger-outline btn-sm">
+                Delete All Patients
+              </button>
+            </div>
+          </div>
+
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- Add / Edit Patient Modal -->
+  <div id="patient-modal" class="modal-backdrop" aria-hidden="true" role="dialog" aria-labelledby="patient-modal-title">
+    <div class="modal-window modal-wide">
+      <div class="modal-header">
+        <h3 class="modal-title" id="patient-modal-title">Register New Patient</h3>
+        <button type="button" class="modal-close-btn" onclick="UI.closeModal('patient-modal')">&times;</button>
+      </div>
+
+      <form id="patient-form" novalidate>
+        <input type="hidden" id="patient-id">
+
+        <div class="modal-body">
+          <div class="form-row">
+            <div class="form-group">
+              <label for="patient-name" class="form-label">Full Name <span class="required-mark">*</span></label>
+              <input type="text" id="patient-name" class="form-control" placeholder="e.g. Sarah Connor" required>
+              <div id="patient-name-error" class="form-error">Patient name is required</div>
+            </div>
+
+            <div class="form-group">
+              <label for="patient-gender" class="form-label">Gender <span class="required-mark">*</span></label>
+              <select id="patient-gender" class="form-control" required>
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="patient-age" class="form-label">Age (Years) <span class="required-mark">*</span></label>
+              <input type="number" id="patient-age" class="form-control form-control-mono" placeholder="e.g. 35" min="1" max="130" required>
+              <div id="patient-age-error" class="form-error">Enter a valid age (1-130)</div>
+            </div>
+
+            <div class="form-group">
+              <label for="patient-mobile" class="form-label">Mobile Number <span class="required-mark">*</span></label>
+              <input type="tel" id="patient-mobile" class="form-control form-control-mono" placeholder="e.g. 9876543210" required>
+              <div id="patient-mobile-error" class="form-error">Valid numeric phone number required</div>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="patient-email" class="form-label">Email Address <span class="required-mark">*</span></label>
+              <input type="email" id="patient-email" class="form-control" placeholder="patient@example.com" required>
+              <div id="patient-email-error" class="form-error">Valid email address required</div>
+            </div>
+
+            <div class="form-group">
+              <label for="patient-address" class="form-label">Residential Address <span class="required-mark">*</span></label>
+              <input type="text" id="patient-address" class="form-control" placeholder="City, Street, ZIP" required>
+              <div id="patient-address-error" class="form-error">Address is required</div>
+            </div>
+          </div>
+
+          <div class="form-group" id="patient-password-group">
+            <label for="patient-password" class="form-label">Login Password <span class="required-mark" id="patient-password-req">*</span></label>
+            <input type="password" id="patient-password" class="form-control form-control-mono" placeholder="At least 4 characters" autocomplete="new-password">
+            <div id="patient-password-error" class="form-error">Password must be at least 4 characters</div>
+            <div class="form-hint" id="patient-password-hint">Patient uses this password and their email to sign in.</div>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="UI.closeModal('patient-modal')">Cancel</button>
+          <button type="submit" id="btn-patient-submit" class="btn btn-primary">Save Record</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="js/api.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/common.js"></script>
+  <script src="js/list-controller.js"></script>
+  <script src="js/patients.js"></script>
+</body>
+</html>

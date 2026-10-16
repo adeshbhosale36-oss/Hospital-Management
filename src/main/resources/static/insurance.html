@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Insurance Policies — Hospital Management System</title>
+  <link rel="icon" type="image/svg+xml" href="images/logo.svg">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+  <div class="app-layout">
+    <div id="app-shell"></div>
+
+    <!-- Main Content -->
+    <div class="app-main">
+      <!-- Main Viewport -->
+      <main class="app-content">
+        <div class="content-container">
+
+          <div class="page-header">
+            <div class="page-header-info">
+              <h1>Insurance Coverage Policies</h1>
+              <p>Maintain health coverage policies, insurance providers, validities, and patient coverage links.</p>
+            </div>
+            <div class="page-actions">
+              <button type="button" id="btn-add-insurance" class="btn btn-primary">
+                + Enroll Insurance Plan
+              </button>
+            </div>
+          </div>
+
+          <!-- Table Toolbar -->
+          <div class="table-toolbar">
+            <div class="toolbar-search">
+              <svg class="search-icon" style="width: 14px; height: 14px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+              <input type="text" id="search-insurance" placeholder="Search by policy number, provider, date, ID...">
+            </div>
+            <div class="toolbar-actions">
+              <span id="insurance-count-info" style="font-size: 12px; color: var(--text-secondary);">Loading...</span>
+            </div>
+          </div>
+
+          <!-- Real <table> Data View -->
+          <div class="table-container">
+            <table class="data-table" id="insurance-table">
+              <thead>
+                <tr>
+                  <th class="sortable" data-sort="id" style="width: 80px;">ID <span class="sort-indicator">▼</span></th>
+                  <th class="sortable" data-sort="policyNumber">Policy Number <span class="sort-indicator">⇅</span></th>
+                  <th class="sortable" data-sort="provider">Insurance Provider <span class="sort-indicator">⇅</span></th>
+                  <th class="sortable" data-sort="validUntil" style="width: 140px;">Valid Until <span class="sort-indicator">⇅</span></th>
+                  <th style="width: 120px;">Linked Patients</th>
+                  <th style="width: 160px;">Registered Timestamp</th>
+                  <th style="width: 140px; text-align: right;">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="insurance-tbody">
+                <!-- Injected by insurance.js -->
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Table Pagination Footer -->
+          <div class="table-footer">
+            <span>Client-side pagination & sorting</span>
+            <div class="pagination-controls" id="insurance-pagination"></div>
+          </div>
+
+          <!-- Destructive Bulk Operations Panel (§6.1) -->
+          <div class="danger-zone-panel">
+            <div class="danger-zone-header">
+              <svg style="width: 16px; height: 16px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+              <span>Destructive Operations Zone</span>
+            </div>
+            <div class="danger-zone-body">
+              <div>
+                <div style="font-weight: 600; color: var(--text-primary); font-size: 13px;">Delete All Insurance Records</div>
+                <div style="font-size: 12px; color: var(--text-secondary); margin-top: 2px;">
+                  Performs a permanent bulk deletion of every insurance policy. If any patients link to these policies, database foreign keys may block deletion.
+                </div>
+              </div>
+              <button type="button" id="btn-bulk-delete-insurance" class="btn btn-danger-outline btn-sm">
+                Delete All Policies
+              </button>
+            </div>
+          </div>
+
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- Add / Edit Insurance Modal -->
+  <div id="insurance-modal" class="modal-backdrop" aria-hidden="true" role="dialog" aria-labelledby="insurance-modal-title">
+    <div class="modal-window">
+      <div class="modal-header">
+        <h3 class="modal-title" id="insurance-modal-title">Enroll New Insurance Policy</h3>
+        <button type="button" class="modal-close-btn" onclick="UI.closeModal('insurance-modal')">&times;</button>
+      </div>
+
+      <form id="insurance-form" novalidate>
+        <input type="hidden" id="insurance-id">
+
+        <div class="modal-body">
+          <div class="form-row">
+            <div class="form-group">
+              <label for="insurance-policyNumber" class="form-label">Policy Number <span class="required-mark">*</span></label>
+              <input type="text" id="insurance-policyNumber" class="form-control form-control-mono" placeholder="e.g. POL-8839210-A" required>
+              <div id="insurance-policy-error" class="form-error">Policy number is required</div>
+            </div>
+
+            <div class="form-group">
+              <label for="insurance-provider" class="form-label">Carrier / Provider <span class="required-mark">*</span></label>
+              <input type="text" id="insurance-provider" class="form-control" placeholder="e.g. Blue Cross, Aetna" required>
+              <div id="insurance-provider-error" class="form-error">Provider name is required</div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="insurance-validUntil" class="form-label">Valid Until (Expiration Date) <span class="required-mark">*</span></label>
+            <input type="date" id="insurance-validUntil" class="form-control form-control-mono" required>
+            <div id="insurance-valid-error" class="form-error">Valid expiration date is required</div>
+          </div>
+
+          <!-- Read-only Created At display (Omitted on create per §3) -->
+          <div id="insurance-created-group" class="form-group" style="display: none;">
+            <label class="form-label">Created At (Database Stamped)</label>
+            <div id="insurance-created-at-display" class="readonly-box form-control-mono">
+              —
+            </div>
+            <div class="form-hint">Automatically stamped by the backend database on insert.</div>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="UI.closeModal('insurance-modal')">Cancel</button>
+          <button type="submit" id="btn-insurance-submit" class="btn btn-primary">Save Policy</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="js/api.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/common.js"></script>
+  <script src="js/list-controller.js"></script>
+  <script src="js/insurance.js"></script>
+</body>
+</html>
